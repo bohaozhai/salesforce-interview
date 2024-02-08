@@ -3,6 +3,7 @@ For every new account created in Salesforce, the company will assign it with an 
 
 There are several tasks to do so that the process can work better.
 
+- Solving permission issue
 - Use the LWC components
 - Make the account manager assignment automated
 - Support history tracking
