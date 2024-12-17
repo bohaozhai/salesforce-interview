@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-    <label>SalesNZCampaignStrategy-78</label>
+    <label>41</label>
     <protected>false</protected>
     <values>
         <field>Accessible_Stage__c</field>
-        <value xsi:type="xsd:string">BookingSent</value>
+        <value xsi:type="xsd:string">InNegotiation</value>
     </values>
     <values>
         <field>Next_Possible_Stage__c</field>
-        <value xsi:type="xsd:string">ClosedWon</value>
+        <value xsi:type="xsd:string">OpportunityIdentified</value>
     </values>
 </CustomMetadata>
