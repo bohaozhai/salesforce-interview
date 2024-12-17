@@ -1,6 +1,6 @@
 # Overview
 # 
-The table Campaign_Stage_DAG__mdt describes, in data, the implementation of 
+The table Campaign_State_Machine__mdt describes, in data, the implementation of 
 a DAG (directed acyclical graph / state machine). 
 
 This DAG represents states and transitions within the Cartology sales and
@@ -48,7 +48,8 @@ means that InterviewTest.valiedate(Planning, OpportunityDiscussed)
 
 should return true.
 
-Your implementation should demonstrate a good working knowledge of the 
+Given the state machine records in the customMetadata folder, 
+your implementation should demonstrate a good working knowledge of the 
 data structures involved, and algorithms used to navigate these. A clear 
 design ism more important than a perfect implementation and we will ask 
 for your own ideas on how your solution can be improved after your
