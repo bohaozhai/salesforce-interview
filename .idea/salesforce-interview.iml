@@ -2,11 +2,18 @@
 <module type="GENERAL_MODULE" version="4">
   <component name="FacetManager">
     <facet type="IlluminatedCloud" name="Illuminated Cloud">
-      <configuration />
+      <configuration>
+        <option name="connectionName" value="sitx" />
+        <option name="connectionType" value="OAUTH" />
+        <option name="defaultSourceRootUrl" value="file://$MODULE_DIR$/force-app" />
+      </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/force-app" isTestSource="false" />
+    </content>
     <content url="file://$MODULE_DIR$/salesforce-interview">
       <sourceFolder url="file://$MODULE_DIR$/salesforce-interview/config" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/salesforce-interview/force-app" isTestSource="false" />
