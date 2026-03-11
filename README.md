@@ -48,22 +48,9 @@ Ms.,   Jane,       Doe,       jane@co.com,   0498765432,    Beta Ltd,     Winter
 | Column Header | Alternate Headers | Required | Notes |
 |---|---|---|---|
 | `Campaign Name` | `Campaign`, `Event Name`, `Event` | | If blank, contact is created without a campaign link |
-| `Start Date` | `Event Start`, `Campaign Start` | | Format: `YYYY-MM-DD`. Must be a future date |
-| `End Date` | `Event End`, `Campaign End` | | Format: `YYYY-MM-DD`. Must not be before Start Date |
+| `Start Date` | `Event Start`, `Campaign Start` | | Format: `YYYY-MM-DD`. |
+| `End Date` | `Event End`, `Campaign End` | | Format: `YYYY-MM-DD`. |
 | `Type` | `Campaign Type`, `Event Type` | | e.g. `Conference`, `Webinar`, `Seminar` |
-
----
-
-## Business Rules
-
-The following rules are enforced by an Apex trigger (`CampaignTrigger`) and apply globally to **all** Campaign records — both via CSV import and manual record creation.
-
-| Rule | Detail |
-|---|---|
-| Start Date must be in the future | `StartDate` must be strictly greater than today |
-| End Date cannot precede Start Date | `EndDate` must be greater than or equal to `StartDate` |
-
-If a CSV row contains campaign dates that violate these rules, the entire import will fail and an error message will be returned to the user.
 
 ---
 
@@ -96,12 +83,6 @@ The component reads the CSV file client-side (no intermediate file storage) and 
 |---|---|
 | `importContacts(String csvContent)` | Parses CSV, upserts Accounts, upserts Contacts, creates Campaigns, inserts CampaignMembers. Returns an `ImportResult` with counts and row errors. |
 
-### Apex: `CampaignTriggerHandler`
-
-| Method | Description |
-|---|---|
-| `validate(List<Campaign> campaigns)` | Called by `CampaignTrigger` on `before insert` and `before update`. Enforces start date and end date business rules. |
-
 ---
 
 ## Project Structure
@@ -111,18 +92,12 @@ force-app/main/default/
 ├── classes/
 │   ├── CSVContactImportController.cls
 │   ├── CSVContactImportControllerTest.cls
-│   ├── CampaignTriggerHandler.cls
-│   └── CampaignTriggerHandlerTest.cls
-├── triggers/
-│   └── CampaignTrigger.trigger
 ├── lwc/
 │   └── csvContactImport/
 │       ├── csvContactImport.html
 │       ├── csvContactImport.js
 │       ├── csvContactImport.css
 │       └── csvContactImport.js-meta.xml
-├── applications/
-│   └── Cartology_Sales.app-meta.xml
 ├── flexipages/
 │   └── CSV_Contact_Import.flexipage-meta.xml
 └── tabs/
@@ -136,7 +111,6 @@ force-app/main/default/
 | Class | Tests | Result |
 |---|---|---|
 | `CSVContactImportControllerTest` | 11 | ✅ All pass |
-| `CampaignTriggerHandlerTest` | 11 | ✅ All pass |
 
 Run tests against the scratch org:
 
@@ -146,7 +120,6 @@ sf apex run test --test-level RunLocalTests --target-org dev --result-format hum
 
 # Specific class
 sf apex run test --class-names CSVContactImportControllerTest --target-org dev --result-format human --synchronous
-sf apex run test --class-names CampaignTriggerHandlerTest --target-org dev --result-format human --synchronous
 ```
 
 ---
@@ -162,12 +135,5 @@ sf project deploy start \
   --metadata "ApexClass:CSVContactImportController" \
   --metadata "ApexClass:CSVContactImportControllerTest" \
   --metadata "LightningComponentBundle:csvContactImport" \
-  --target-org dev
-
-# Deploy trigger only
-sf project deploy start \
-  --metadata "ApexTrigger:CampaignTrigger" \
-  --metadata "ApexClass:CampaignTriggerHandler" \
-  --metadata "ApexClass:CampaignTriggerHandlerTest" \
   --target-org dev
 ```
