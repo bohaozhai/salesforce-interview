@@ -48,3 +48,18 @@ FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate
 ```
 
 ---
+
+## Your task
+
+The root cause is that `CSVContactImportController` **owns its database operations directly**. It calls `insert`, `upsert`, and SOQL inline across four private methods:
+
+| Method | DML / SOQL |
+|---|---|
+| `resolveAccounts()` | `SELECT Account`, `insert Account` |
+| `resolveCampaigns()` | `SELECT Campaign`, `insert Campaign` ← fires `CampaignTrigger` |
+| `importContacts()` | `SELECT Contact`, `upsert Contact` |
+| `addCampaignMembersPerRow()` | `SELECT CampaignMember`, `insert CampaignMember` |
+
+Because the controller reaches directly for the database, every test must go through the database — and every `insert Campaign` fires `CampaignTrigger`. Tests have no way to bypass it.
+
+The controller should receive the service as an injected dependency rather than constructing its own database connection. In production the real service executes DML; in tests a stub returns in-memory data and captures mutations — **without ever touching the database, so no trigger fires**.
