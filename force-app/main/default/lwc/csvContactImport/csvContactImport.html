@@ -1,0 +1,167 @@
+<template>
+    <lightning-card title="Import Contacts from CSV" icon-name="standard:contact">
+        <div class="slds-p-around_medium">
+
+            <!-- ── IDLE: upload area ───────────────────────────────────────── -->
+            <template lwc:if={isIdle}>
+                <div class="slds-text-body_regular slds-m-bottom_medium">
+                    <p>Upload a <strong>.csv</strong> file with your event participant details. Supported columns:</p>
+                    <div class="slds-grid slds-gutters slds-m-top_x-small">
+                        <div class="slds-col">
+                            <p class="slds-text-title_caps slds-m-bottom_xx-small">Contact</p>
+                            <ul class="slds-list_dotted">
+                                <li>Title</li>
+                                <li>First Name</li>
+                                <li>Last Name <em>(required)</em></li>
+                                <li>Email Address</li>
+                                <li>Mobile Number</li>
+                                <li>Company Name</li>
+                            </ul>
+                        </div>
+                        <div class="slds-col">
+                            <p class="slds-text-title_caps slds-m-bottom_xx-small">Campaign</p>
+                            <ul class="slds-list_dotted">
+                                <li>Campaign Name</li>
+                                <li>Start Date</li>
+                                <li>End Date</li>
+                                <li>Type</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class={dropZoneClass}
+                    ondragover={handleDragOver}
+                    ondragleave={handleDragLeave}
+                    ondrop={handleDrop}
+                >
+                    <lightning-icon icon-name="doctype:csv" size="large" class="slds-m-bottom_small"></lightning-icon>
+                    <p class="slds-text-heading_small">Drag &amp; drop your CSV here</p>
+                    <p class="slds-text-body_small slds-text-color_weak slds-m-vertical_x-small">or</p>
+                    <label class="slds-button slds-button_neutral">
+                        Browse File
+                        <input type="file" accept=".csv,text/csv" onchange={handleFileSelect} class="slds-hide" />
+                    </label>
+                </div>
+
+                <template lwc:if={parseError}>
+                    <div class="slds-notify slds-notify_alert slds-theme_error slds-m-top_small" role="alert">
+                        <span>{parseError}</span>
+                    </div>
+                </template>
+            </template>
+
+            <!-- ── PREVIEW: parsed table ──────────────────────────────────── -->
+            <template lwc:if={isPreview}>
+                <div class="slds-m-bottom_medium">
+                    <p class="slds-text-body_regular">
+                        <strong>{previewRows.length}</strong> record(s) found in <em>{fileName}</em>.
+                        Review below then click <strong>Import</strong>.
+                    </p>
+                </div>
+
+                <div class="table-container">
+                    <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped slds-table_fixed-layout">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col"><div class="slds-truncate">Title</div></th>
+                                <th scope="col"><div class="slds-truncate">First Name</div></th>
+                                <th scope="col"><div class="slds-truncate">Last Name</div></th>
+                                <th scope="col"><div class="slds-truncate">Email</div></th>
+                                <th scope="col"><div class="slds-truncate">Mobile</div></th>
+                                <th scope="col"><div class="slds-truncate">Company</div></th>
+                                <th scope="col"><div class="slds-truncate">Campaign</div></th>
+                                <th scope="col"><div class="slds-truncate">Start Date</div></th>
+                                <th scope="col"><div class="slds-truncate">End Date</div></th>
+                                <th scope="col"><div class="slds-truncate">Type</div></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={previewRows} for:item="row">
+                                <tr key={row.key}>
+                                    <td><div class="slds-truncate">{row.title}</div></td>
+                                    <td><div class="slds-truncate">{row.firstname}</div></td>
+                                    <td><div class="slds-truncate">{row.lastname}</div></td>
+                                    <td><div class="slds-truncate">{row.email}</div></td>
+                                    <td><div class="slds-truncate">{row.mobile}</div></td>
+                                    <td><div class="slds-truncate">{row.company}</div></td>
+                                    <td><div class="slds-truncate">{row.campaignname}</div></td>
+                                    <td><div class="slds-truncate">{row.startdate}</div></td>
+                                    <td><div class="slds-truncate">{row.enddate}</div></td>
+                                    <td><div class="slds-truncate">{row.campaigntype}</div></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="slds-m-top_medium">
+                    <lightning-button variant="brand"    label="Import" onclick={handleImport}  class="slds-m-right_small"></lightning-button>
+                    <lightning-button variant="neutral"  label="Cancel" onclick={handleReset}></lightning-button>
+                </div>
+            </template>
+
+            <!-- ── IMPORTING: spinner ─────────────────────────────────────── -->
+            <template lwc:if={isImporting}>
+                <div class="slds-align_absolute-center slds-p-around_large">
+                    <lightning-spinner alternative-text="Importing..." size="medium"></lightning-spinner>
+                    <p class="slds-m-top_large slds-text-color_weak">Importing contacts and campaigns, please wait…</p>
+                </div>
+            </template>
+
+            <!-- ── DONE: results ──────────────────────────────────────────── -->
+            <template lwc:if={isDone}>
+                <div class={resultBannerClass} role="alert">
+                    <lightning-icon icon-name={resultIcon} alternative-text="status" size="small" class="slds-m-right_x-small"></lightning-icon>
+                    <strong>{importResult.message}</strong>
+                </div>
+
+                <template lwc:if={hasSummary}>
+                    <div class="slds-grid slds-gutters slds-m-top_medium">
+                        <div class="slds-col slds-size_1-of-2">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-heading_large">{importResult.created}</p>
+                                <p class="slds-text-body_small">Contacts Created</p>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-heading_large">{importResult.updated}</p>
+                                <p class="slds-text-body_small">Contacts Updated</p>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-heading_large">{importResult.campaignsCreated}</p>
+                                <p class="slds-text-body_small">Campaigns Created</p>
+                            </div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                            <div class="slds-box slds-theme_shade slds-text-align_center">
+                                <p class="slds-text-heading_large">{importResult.campaignMembersAdded}</p>
+                                <p class="slds-text-body_small">Members Linked</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <template lwc:if={hasRowErrors}>
+                    <div class="slds-m-top_small">
+                        <p class="slds-text-color_error slds-text-title_caps slds-m-bottom_x-small">Row Errors:</p>
+                        <ul class="slds-list_dotted">
+                            <template for:each={importResult.rowErrors} for:item="err">
+                                <li key={err} class="slds-text-body_small">{err}</li>
+                            </template>
+                        </ul>
+                    </div>
+                </template>
+
+                <div class="slds-m-top_medium">
+                    <lightning-button variant="brand" label="Import Another File" onclick={handleReset}></lightning-button>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>

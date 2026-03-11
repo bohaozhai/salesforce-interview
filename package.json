@@ -1,0 +1,26 @@
+{
+  "name": "salesforce-interview",
+  "version": "0.1.0",
+  "description": "Salesforce DX project powered by sfpowerkit",
+  "private": true,
+  "scripts": {
+    "lint": "eslint **/{aura,lwc}/**",
+    "test": "npm run lint && npm run test:unit",
+    "test:unit": "sf apex run test --test-level RunLocalTests --synchronous --result-format human",
+    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "scratchorg:create": "sf org create scratch --definition-file config/project-scratch-def.json --set-default --duration-days 30 --alias dev",
+    "scratchorg:push": "sf project deploy start",
+    "scratchorg:open": "sf org open",
+    "scratchorg:delete": "sf org delete scratch --target-org dev --no-prompt",
+    "scratchorg:setup": "npm run scratchorg:create && npm run scratchorg:push && npm run scratchorg:open"
+  },
+  "devDependencies": {
+    "@dxatscale/sfpowerscripts": "latest",
+    "@salesforce/eslint-config-lwc": "^3.5.3",
+    "@salesforce/eslint-plugin-aura": "^2.1.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-apex": "^2.1.4"
+  }
+}

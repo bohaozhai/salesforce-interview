@@ -1,0 +1,27 @@
+.drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #d8dde6;
+    border-radius: 0.5rem;
+    min-height: 180px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s;
+    background-color: #f3f3f3;
+}
+
+.drop-zone.dragging {
+    border-color: #0070d2;
+    background-color: #e8f4ff;
+}
+
+.drop-zone:hover {
+    border-color: #0070d2;
+}
+
+.table-container {
+    overflow-x: auto;
+    max-height: 360px;
+    overflow-y: auto;
+}
