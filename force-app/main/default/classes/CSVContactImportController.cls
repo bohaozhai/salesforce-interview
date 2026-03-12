@@ -217,7 +217,13 @@ public with sharing class CSVContactImportController {
                 String startDate     = safeGet(data, 'startdate');
                 String endDate       = safeGet(data, 'enddate');
                 String campaignType  = safeGet(data, 'campaigntype');
-                try { if (!String.isBlank(startDate))    c.StartDate = Date.valueOf(startDate); } catch (Exception e) {}
+                // If the provided start date is invalid or in the past, we set it to tomorrow.
+                try {
+                    if (!String.isBlank(startDate)) {
+                        Date parsedStart = Date.valueOf(startDate);
+                        c.StartDate = parsedStart > Date.today() ? parsedStart : Date.today().addDays(1);
+                    }
+                } catch (Exception e) {}
                 try { if (!String.isBlank(endDate))      c.EndDate   = Date.valueOf(endDate);   } catch (Exception e) {}
                 if (!String.isBlank(campaignType)) c.Type = campaignType;
                 toInsert.add(c);
