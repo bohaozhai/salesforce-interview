@@ -81,6 +81,11 @@ code {
     display: block;
 }
 
+.readme-pre code span {
+    display: block;
+    white-space: pre;
+}
+
 .readme-table {
     width: 100%;
     border-collapse: collapse;
