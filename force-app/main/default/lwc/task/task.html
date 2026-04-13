@@ -1,0 +1,172 @@
+<template>
+    <div class="readme-wrapper">
+
+        <h1 class="readme-h1">CSVContactImportControllerTest — Test Results</h1>
+        <hr />
+
+        <!-- Summary -->
+        <h2 class="readme-h2">Summary</h2>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Tests Ran</td><td>11</td></tr>
+                <tr><td>Passed</td><td>5</td></tr>
+                <tr><td>Failed</td><td>6</td></tr>
+                <tr><td>Pass Rate</td><td>45%</td></tr>
+                <tr><td>Total Execution Time</td><td>1256 ms</td></tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <!-- Test Results -->
+        <h2 class="readme-h2">Test Results</h2>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th>Outcome</th>
+                    <th>Runtime (ms)</th>
+                    <th>Failure Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>testEmptyCSV_returnsEarlyWithMessage</code></td>
+                    <td class="outcome-pass">✅ Pass</td>
+                    <td>12</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>testExistingCampaignMember_notDuplicated</code></td>
+                    <td class="outcome-pass">✅ Pass</td>
+                    <td>265</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>testExistingCampaign_usedNotDuplicated</code></td>
+                    <td class="outcome-pass">✅ Pass</td>
+                    <td>141</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>testHeadersOnly_returnsNoRows</code></td>
+                    <td class="outcome-pass">✅ Pass</td>
+                    <td>13</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>testRowWithNoCampaign_createsContactOnly</code></td>
+                    <td class="outcome-pass">✅ Pass</td>
+                    <td>118</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>testHappyPath_createsContactCampaignAndMember</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Import failed: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate]</code></td>
+                </tr>
+                <tr>
+                    <td><code>testMultipleRowsMultipleCampaigns</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Import failed: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate]</code></td>
+                </tr>
+                <tr>
+                    <td><code>testDuplicateEmail_updatesExistingContact</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Assertion Failed</code></td>
+                </tr>
+                <tr>
+                    <td><code>testMissingLastName_skipsRow</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Assertion Failed: Expected: 1, Actual: 0</code></td>
+                </tr>
+                <tr>
+                    <td><code>testQuotedFields_parsedCorrectly</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Import failed: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate]</code></td>
+                </tr>
+                <tr>
+                    <td><code>testAlternateHeaders_resolvedCorrectly</code></td>
+                    <td class="outcome-fail">❌ Fail</td>
+                    <td>—</td>
+                    <td class="failure-msg"><code>Import failed: Insert failed. First exception on row 0; first error: FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate]</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <!-- Root Cause -->
+        <h2 class="readme-h2">Root Cause</h2>
+        <p>
+            All 6 failures are caused by a <strong>regression introduced by the <code>CampaignTrigger</code></strong>,
+            which was added after this test class was written.
+        </p>
+        <p>
+            The trigger enforces that <code>Campaign.StartDate</code> must be strictly in the future
+            (<code>StartDate &gt; Date.today()</code>). The test data in <code>CSVContactImportControllerTest</code>
+            uses hardcoded past dates (e.g. <code>2025-02-01</code>, <code>2025-03-01</code>) in the CSV campaign
+            columns. When the controller attempts to insert these campaigns, the trigger rejects them with:
+        </p>
+        <pre class="readme-pre"><code>FIELD_CUSTOM_VALIDATION_EXCEPTION, Start Date must be in the future.: [StartDate]</code></pre>
+
+        <hr />
+
+        <!-- Your Task -->
+        <h2 class="readme-h2">Your Task</h2>
+        <p>
+            The root cause is that <code>CSVContactImportController</code> <strong>owns its database operations
+            directly</strong>. It calls <code>insert</code>, <code>upsert</code>, and SOQL inline across four
+            private methods:
+        </p>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>DML / SOQL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>resolveAccounts()</code></td>
+                    <td><code>SELECT Account</code>, <code>insert Account</code></td>
+                </tr>
+                <tr>
+                    <td><code>resolveCampaigns()</code></td>
+                    <td><code>SELECT Campaign</code>, <code>insert Campaign</code> ← fires <code>CampaignTrigger</code></td>
+                </tr>
+                <tr>
+                    <td><code>importContacts()</code></td>
+                    <td><code>SELECT Contact</code>, <code>upsert Contact</code></td>
+                </tr>
+                <tr>
+                    <td><code>addCampaignMembersPerRow()</code></td>
+                    <td><code>SELECT CampaignMember</code>, <code>insert CampaignMember</code></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            Because the controller reaches directly for the database, every test must go through the
+            database — and every <code>insert Campaign</code> fires <code>CampaignTrigger</code>. Tests have
+            no way to bypass it.
+        </p>
+        <p>
+            The controller should receive the service as an injected dependency rather than constructing
+            its own database connection. In production the real service executes DML; in tests a stub
+            returns in-memory data and captures mutations — <strong>without ever touching the database,
+            so no trigger fires</strong>.
+        </p>
+
+    </div>
+</template>

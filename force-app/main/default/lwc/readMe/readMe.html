@@ -1,0 +1,257 @@
+<template>
+    <div class="readme-wrapper">
+
+        <h1 class="readme-h1">CSV Contact Import</h1>
+
+        <p>
+            A Salesforce Lightning Web Component that allows sales users to import event participants from a CSV file.
+            On upload, the component automatically creates or updates <strong>Contacts</strong>, <strong>Accounts</strong>,
+            and <strong>Campaigns</strong>, and links each contact to their campaign as a <strong>CampaignMember</strong>.
+        </p>
+
+        <hr />
+
+        <!-- Features -->
+        <h2 class="readme-h2">Features</h2>
+        <ul>
+            <li>Drag-and-drop or browse CSV file upload</li>
+            <li>Client-side preview of parsed rows before committing</li>
+            <li>Upserts Contacts by email (creates new, updates existing)</li>
+            <li>Creates Accounts by company name (reused if already exists)</li>
+            <li>Creates Campaigns from CSV data (reused if name already exists)</li>
+            <li>Links Contacts to their Campaign as <code>CampaignMember</code> (Status: <code>Responded</code>)</li>
+            <li>Flexible header names — see <a href="#supported-column-headers">Supported Column Headers</a></li>
+            <li>Result summary showing contacts created/updated, campaigns created, members linked</li>
+            <li>Available as a tab in the <strong>Cartology Sales</strong> app</li>
+        </ul>
+
+        <hr />
+
+        <!-- CSV Format -->
+        <h2 class="readme-h2">CSV Format</h2>
+        <p>
+            The file must be a comma-separated <code>.csv</code> file with a header row.
+            Column order does not matter. All headers are case-insensitive.
+        </p>
+
+        <h3 class="readme-h3">Example</h3>
+        <pre class="readme-pre"><code>Title, First Name, Last Name, Email Address, Mobile Number, Company Name, Campaign Name, Start Date,  End Date,   Type
+Mr.,   John,       Smith,     john@co.com,   0412345678,    Acme Corp,    Summer Conf,   2026-04-01, 2026-04-03, Conference
+Ms.,   Jane,       Doe,       jane@co.com,   0498765432,    Beta Ltd,     Winter Expo,   2026-06-10, 2026-06-12, Seminar</code></pre>
+
+        <h3 class="readme-h3">Field Reference</h3>
+
+        <h4 class="readme-h4">Contact Fields</h4>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Column Header</th>
+                    <th>Alternate Headers</th>
+                    <th>Required</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Last Name</code></td>
+                    <td><code>Lastname</code>, <code>Surname</code></td>
+                    <td>✅</td>
+                    <td>Row is skipped if blank</td>
+                </tr>
+                <tr>
+                    <td><code>First Name</code></td>
+                    <td><code>Firstname</code></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>Title</code></td>
+                    <td><code>Salutation</code></td>
+                    <td></td>
+                    <td>Mapped to Salesforce Salutation picklist: <code>Mr.</code>, <code>Mrs.</code>, <code>Ms.</code>, <code>Dr.</code>, <code>Prof.</code></td>
+                </tr>
+                <tr>
+                    <td><code>Email Address</code></td>
+                    <td><code>Email</code></td>
+                    <td></td>
+                    <td>Used to match existing contacts (upsert key)</td>
+                </tr>
+                <tr>
+                    <td><code>Mobile Number</code></td>
+                    <td><code>Mobile</code>, <code>Phone</code></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><code>Company Name</code></td>
+                    <td><code>Company</code>, <code>Organisation</code>, <code>Organization</code></td>
+                    <td></td>
+                    <td>Creates or reuses an Account</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h4 class="readme-h4">Campaign Fields</h4>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Column Header</th>
+                    <th>Alternate Headers</th>
+                    <th>Required</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>Campaign Name</code></td>
+                    <td><code>Campaign</code>, <code>Event Name</code>, <code>Event</code></td>
+                    <td></td>
+                    <td>If blank, contact is created without a campaign link</td>
+                </tr>
+                <tr>
+                    <td><code>Start Date</code></td>
+                    <td><code>Event Start</code>, <code>Campaign Start</code></td>
+                    <td></td>
+                    <td>Format: <code>YYYY-MM-DD</code></td>
+                </tr>
+                <tr>
+                    <td><code>End Date</code></td>
+                    <td><code>Event End</code>, <code>Campaign End</code></td>
+                    <td></td>
+                    <td>Format: <code>YYYY-MM-DD</code></td>
+                </tr>
+                <tr>
+                    <td><code>Type</code></td>
+                    <td><code>Campaign Type</code>, <code>Event Type</code></td>
+                    <td></td>
+                    <td>e.g. <code>Conference</code>, <code>Webinar</code>, <code>Seminar</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <!-- How to Use -->
+        <h2 class="readme-h2">How to Use</h2>
+        <ol>
+            <li>Navigate to the <strong>Cartology Sales</strong> app</li>
+            <li>Click the <strong>Import Contacts</strong> tab</li>
+            <li>Drag and drop your <code>.csv</code> file onto the upload area, or click <strong>Browse File</strong></li>
+            <li>Review the preview table to confirm the parsed data</li>
+            <li>Click <strong>Import</strong></li>
+            <li>Review the result summary — any skipped rows will be listed with a reason</li>
+        </ol>
+
+        <hr />
+
+        <!-- Component Details -->
+        <h2 class="readme-h2">Component Details</h2>
+
+        <h3 class="readme-h3">LWC: <code>csvContactImport</code></h3>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Component name</td>
+                    <td><code>csvContactImport</code></td>
+                </tr>
+                <tr>
+                    <td>API version</td>
+                    <td>63.0</td>
+                </tr>
+                <tr>
+                    <td>Target pages</td>
+                    <td><code>lightning__AppPage</code>, <code>lightning__RecordPage</code>, <code>lightning__HomePage</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The component reads the CSV file client-side (no intermediate file storage) and sends the
+            raw content string to the Apex controller for processing.
+        </p>
+
+        <h3 class="readme-h3">Apex: <code>CSVContactImportController</code></h3>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>importContacts(String csvContent)</code></td>
+                    <td>Parses CSV, upserts Accounts, upserts Contacts, creates Campaigns, inserts CampaignMembers. Returns an <code>ImportResult</code> with counts and row errors.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr />
+
+        <!-- Project Structure -->
+        <h2 class="readme-h2">Project Structure</h2>
+        <div class="file-tree">
+            <ul>
+                <li class="tree-dir">force-app/main/default/
+                    <ul>
+                        <li class="tree-dir">classes/
+                            <ul>
+                                <li class="tree-file">CSVContactImportController.cls</li>
+                                <li class="tree-file">CSVContactImportControllerTest.cls</li>
+                            </ul>
+                        </li>
+                        <li class="tree-dir">lwc/
+                            <ul>
+                                <li class="tree-dir">csvContactImport/
+                                    <ul>
+                                        <li class="tree-file">csvContactImport.html</li>
+                                        <li class="tree-file">csvContactImport.js</li>
+                                        <li class="tree-file">csvContactImport.css</li>
+                                        <li class="tree-file">csvContactImport.js-meta.xml</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="tree-dir">flexiPages/
+                            <ul>
+                                <li class="tree-file">CSV_Contact_Import.flexipage-meta.xml</li>
+                            </ul>
+                        </li>
+                        <li class="tree-dir">tabs/
+                            <ul>
+                                <li class="tree-file">CSV_Contact_Import.tab-meta.xml</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <hr />
+
+        <!-- Test Coverage -->
+        <h2 class="readme-h2">Test Coverage</h2>
+        <table class="readme-table">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Tests</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>CSVContactImportControllerTest</code></td>
+                    <td>11</td>
+                    <td>✅ All pass</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</template>
