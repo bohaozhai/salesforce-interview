@@ -1,12 +1,5 @@
 # CSVContactImportControllerTest — Test Results
 
-**Class:** `CSVContactImportControllerTest`
-**Org:** `test-x8ztoh5bsa9m@example.com` (`00D8r00000Ae82jEAB`)
-**Run Date:** 2026-03-11
-**API Version:** 63.0
-
----
-
 ## Summary
 
 | Metric | Value |
