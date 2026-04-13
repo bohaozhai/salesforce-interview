@@ -1,4 +1,4 @@
-# CSV Contact Import
+# Background
 
 A Salesforce Lightning Web Component that allows sales users to import event participants from a CSV file. On upload, the component automatically creates or updates **Contacts**, **Accounts**, and **Campaigns**, and links each contact to their campaign as a **CampaignMember**.
 
@@ -111,29 +111,3 @@ force-app/main/default/
 | Class | Tests | Result |
 |---|---|---|
 | `CSVContactImportControllerTest` | 11 | ✅ All pass |
-
-Run tests against the scratch org:
-
-```bash
-# All local tests
-sf apex run test --test-level RunLocalTests --target-org dev --result-format human --synchronous
-
-# Specific class
-sf apex run test --class-names CSVContactImportControllerTest --target-org dev --result-format human --synchronous
-```
-
----
-
-## Deployment
-
-```bash
-# Deploy all components
-sf project deploy start --target-org dev
-
-# Deploy specific components only
-sf project deploy start \
-  --metadata "ApexClass:CSVContactImportController" \
-  --metadata "ApexClass:CSVContactImportControllerTest" \
-  --metadata "LightningComponentBundle:csvContactImport" \
-  --target-org dev
-```
